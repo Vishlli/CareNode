@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Veterinary Consultation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <h1>Veterinary Teleconsultation</h1>
+</header>
+
+<main class="container">
+
+  <div class="card">
+    <h3>Health Summary</h3>
+    <p>Cattle ID: #A1023</p>
+    <p>Health Score: 82 / 100</p>
+    <p>Temperature: 38.6°C</p>
+    <p>Respiratory: Normal</p>
+  </div>
+
+  <div class="card">
+    <h3>WhatsApp Message Preview</h3>
+    <pre>
+🐄 CareNode Alert
+Cattle ID: #A1023
+Health Score: 82/100
+Temp: 38.6°C
+Respiratory: Normal
+Requesting consultation.
+    </pre>
+  </div>
+
+  <button onclick="sendWhatsApp()" class="btn whatsapp">
+    Send to Vet via WhatsApp
+  </button>
+
+  <a href="index.html" class="btn secondary">Cancel</a>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
