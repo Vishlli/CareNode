@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CareNode Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <h1>CareNode – Cattle Health Monitoring System</h1>
+  <p>Device Status: <strong>Online</strong></p>
+</header>
+
+<main class="container">
+
+  <section class="card">
+    <h2>Cattle ID</h2>
+    <p id="cattle-id">#A1023</p>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h3>Temperature</h3>
+      <p id="temperature">38.6°C</p>
+    </div>
+
+    <div class="card">
+      <h3>Respiratory</h3>
+      <p id="respiratory">Normal</p>
+    </div>
+
+    <div class="card center">
+      <h3>Health Score</h3>
+      <div id="health-score" class="score green">82</div>
+    </div>
+  </section>
+
+  <section id="decision-normal" class="info">
+    <p>AI explanation available</p>
+    <a href="suggestions.html" class="btn">View Explanation</a>
+  </section>
+
+  <section id="decision-critical" class="alert hidden">
+    <p>Critical Health Detected</p>
+    <a href="vet.html" class="btn whatsapp">Consult Veterinarian</a>
+  </section>
+
+  <a href="trends.html" class="btn secondary">View Health Trends</a>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
