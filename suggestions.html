@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Care Explanation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <h1>AI Care Explanation</h1>
+
+  <select id="language">
+    <option>English</option>
+    <option>தமிழ் (Tamil)</option>
+    <option>हिन्दी (Hindi)</option>
+  </select>
+</header>
+
+<main class="container">
+
+  <div class="card">
+    <button onclick="playVoice()" class="btn">🔊 Play Voice Explanation</button>
+  </div>
+
+  <div class="card">
+    <h3>Detected Issue</h3>
+    <p>Mild temperature elevation detected.</p>
+  </div>
+
+  <div class="card">
+    <h3>Suggested Care</h3>
+    <ul>
+      <li>Ensure hydration</li>
+      <li>Provide shade</li>
+      <li>Monitor for 6–12 hours</li>
+    </ul>
+  </div>
+
+  <p class="disclaimer">
+    This is an advisory suggestion, not a medical diagnosis.
+  </p>
+
+  <div class="actions">
+    <a href="index.html" class="btn secondary">Back</a>
+    <a href="vet.html" class="btn">Consult Vet Anyway</a>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
