@@ -1,55 +1,639 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CareNode Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareNode - Cattle Health Monitor</title>
+    <style>
+        /* ===== Base Reset ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", system-ui, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ede9 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+        }
+        /* ===== Header ===== */
+        .header {
+            background: linear-gradient(135deg, #3a5a40 0%, #588157 100%);
+            color: #ffffff;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header h1,
+        .header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        /* ===== Layout ===== */
+        .container {
+            padding: 24px;
+            max-width: 1100px;
+            margin: auto;
+        }
+        /* ===== Cards ===== */
+        .card {
+            background: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+        .card h3 {
+            margin-bottom: 16px;
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        /* ===== Grid ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        /* ===== Health Score ===== */
+        .score {
+            font-size: 44px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .green {
+            color: #1a7f37;
+        }
+        .orange {
+            color: #f59e0b;
+        }
+        .red {
+            color: #dc2626;
+        }
+        /* ===== Buttons ===== */
+        .btn {
+            display: inline-block;
+            background: #3a5a40;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #2d4730;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .btn.secondary {
+            background: #ffffff;
+            color: #3a5a40;
+            border: 2px solid #3a5a40;
+        }
+        .btn.secondary:hover {
+            background: #f0f4f1;
+            transform: translateY(-1px);
+        }
+        .btn.whatsapp {
+            background: #25d366;
+        }
+        .btn.whatsapp:hover {
+            background: #20bd5a;
+        }
+        .btn.danger {
+            background: #dc2626;
+        }
+        .btn.danger:hover {
+            background: #b91c1c;
+        }
+        /* ===== Auth Page ===== */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .auth-container h1 {
+            margin-bottom: 20px;
+            color: #3a5a40;
+            font-size: 32px;
+        }
+        .auth-container .card {
+            width: 320px;
+        }
+        /* ===== Inputs ===== */
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+        }
+        /* ===== Pages ===== */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        /* ===== Status Badge ===== */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-normal {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-alert {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        /* ===== Mobile ===== */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+            .btn {
+                display: block;
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
 </head>
-<body>
 
-<header class="header">
-  <h1>CareNode – Cattle Health Monitoring System</h1>
-  <p>Device Status: <strong>Online</strong></p>
+    <body onload="startFetching()">
+    <!-- ========== AUTH PAGE ========== -->
+    <div id="authPage" class="page active">
+        <div class="auth-container">
+            <h1>🐄 CareNode</h1>
+            <div class="card">
+                <h3>Facilitator Login</h3>
+                <input id="authEmail" type="email" placeholder="Email" value="facilitator@carenode.in">
+                <input id="authPassword" type="password" placeholder="Password" value="demo123">
+                <button class="btn" onclick="login()">Login</button>
+                <button class="btn secondary" onclick="signup()">Sign Up</button>
+                <p style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+                    Demo credentials: facilitator@carenode.in / demo123
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- ========== DASHBOARD PAGE ========== -->
+    <div id="dashboardPage" class="page">
+        <header class="header">
+    <h2>CareNode Dashboard</h2>
+    <div>
+        <button class="btn" onclick="connectESP32()">🔌 Connect ESP32</button>
+        <button class="btn secondary" onclick="logout()">Logout</button>
+    </div>
 </header>
 
-<main class="container">
+        <main class="container">
+            <div class="card">
+                <h3>Latest Scan - Cattle ID: A1B2C3</h3>
+                <p style="font-size: 12px; color: #6b7280;">Scanned: Today, 8:45 AM</p>
+            </div>
+            <div class="grid">
+                <div class="card">
+                    <h3>Temperature</h3>
+                    <p id="dashTemp" style="font-size: 32px; font-weight: bold; color: #f59e0b;">39.2°C</p>
+                    <span id="dashTempBadge" class="status-badge status-warning">Slightly Elevated</span>
+                </div>
 
-  <section class="card">
-    <h2>Cattle ID</h2>
-    <p id="cattle-id">#A1023</p>
-  </section>
+                <div class="card">
+    <h3>Prediction Confidence</h3>
+    <div style="margin-top:10px;">
+        <p>Normal</p>
+        <div style="background:#eee;height:10px;border-radius:6px;">
+            <div id="barNormal" style="height:10px;background:#1a7f37;width:0%;border-radius:6px;"></div>
+        </div>
 
-  <section class="grid">
-    <div class="card">
-      <h3>Temperature</h3>
-      <p id="temperature">38.6°C</p>
+        <p style="margin-top:10px;">Monitor</p>
+        <div style="background:#eee;height:10px;border-radius:6px;">
+            <div id="barMonitor" style="height:10px;background:#f59e0b;width:0%;border-radius:6px;"></div>
+        </div>
+
+        <p style="margin-top:10px;">Critical</p>
+        <div style="background:#eee;height:10px;border-radius:6px;">
+            <div id="barCritical" style="height:10px;background:#dc2626;width:0%;border-radius:6px;"></div>
+                    </div>
+                </div>
+            </div>
+
+                <div class="card">
+                    <h3>Respiratory Status</h3>
+                    <p style="font-size: 32px; font-weight: bold; color: #1a7f37;">Normal</p>
+                    <span class="status-badge status-normal">Healthy</span>
+                </div>
+                <div class="card">
+                    <h3>Health Score</h3>
+                    <p id="dashScore" class="score orange">78</p>
+                    <span class="status-badge status-warning">Monitor</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Quick Actions</h3>
+                <button class="btn" onclick="showAICarePage()">
+                    📋 View AI Explanation & Care
+                </button>
+                <button class="btn whatsapp" onclick="showVetPage()">
+                    👨‍⚕️ Veterinary Consultation
+                </button>
+            </div>
+            <div class="card">
+                <h3>Recent Scans (Last 7 Days)</h3>
+                <div style="margin-top: 10px;">
+                    <p style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                        <strong>Cattle A1B2C3</strong> - Today 8:45 AM - ⚠️ Elevated temp
+                    </p>
+                    <p style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                        <strong>Cattle D4E5F6</strong> - Yesterday 7:30 AM - ✅ Normal
+                    </p>
+                    <p style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                        <strong>Cattle G7H8I9</strong> - 2 days ago - ✅ Normal
+                    </p>
+                </div>
+            </div>
+        </main>
     </div>
-
-    <div class="card">
-      <h3>Respiratory</h3>
-      <p id="respiratory">Normal</p>
+    <!-- ========== AI CARE PAGE ========== -->
+    <div id="aiCarePage" class="page">
+        <header class="header">
+            <h2>AI Health Analysis</h2>
+            <button class="btn secondary" onclick="showDashboard()">← Back</button>
+        </header>
+        <main class="container">
+            <div class="card">
+                <h3>🤖 AI Health Analysis - Cattle A1B2C3</h3>
+                <p id="aiStatusText" style="margin-top: 10px; line-height: 1.8; color: #4a5568;">
+                    <strong style="color: #2c3e50;">Status:</strong> Mild temperature elevation detected (39.2°C).
+                </p>
+                <p id="aiRecText" style="margin-top: 10px; line-height: 1.8; color: #4a5568;">
+                    <strong style="color: #2c3e50;">Recommended Care:</strong><br>
+                    • Ensure cattle has access to shade and cool water<br>
+                    • Monitor temperature every 4 hours<br>
+                    • Reduce physical activity for 24 hours<br>
+                    • If temperature exceeds 40°C, contact veterinarian immediately
+                </p>
+                <p style="margin-top: 10px; line-height: 1.8; color: #4a5568;">
+                    <strong style="color: #2c3e50;">Possible Causes:</strong><br>
+                    • Heat stress (most likely given normal respiratory status)<br>
+                    • Early-stage infection (less likely)<br>
+                    • Post-exercise elevation (if recently active)
+                </p>
+            </div>
+            <div class="card">
+                <h3>🔊 Voice Explanations</h3>
+                <p style="margin-bottom: 16px; color: #6b7280;">Listen to care instructions in your preferred language
+                </p>
+                <button class="btn" onclick="playVoice('tamil')">
+                    🔊 Play in Tamil
+                </button>
+                <button class="btn" onclick="playVoice('hindi')">
+                    🔊 Play in Hindi
+                </button>
+                <button class="btn" onclick="playVoice('english')">
+                    🔊 Play in English
+                </button>
+                <button class="btn danger" onclick="stopVoice()" style="margin-top: 12px; width: 100%;">
+                    ⏹️ Stop Audio
+                </button>
+            </div>
+            <div class="card">
+                <h3>📊 Health Trend</h3>
+                <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-top: 12px;">
+                    <p style="font-size: 14px; color: #4a5568; margin-bottom: 8px;">Last 7 Days Temperature Range</p>
+                    <p style="font-size: 24px; font-weight: 600; color: #3a5a40;">38.4°C - 39.2°C</p>
+                    <p style="font-size: 13px; color: #6b7280; margin-top: 8px;">Average: 38.7°C | Trend: Gradually
+                        increasing</p>
+                </div>
+            </div>
+        </main>
     </div>
-
-    <div class="card center">
-      <h3>Health Score</h3>
-      <div id="health-score" class="score green">82</div>
+    <!-- ========== VETERINARY CONSULTATION PAGE ========== -->
+    <div id="vetPage" class="page">
+        <header class="header">
+            <h2>Veterinary Consultation</h2>
+            <button class="btn secondary" onclick="showDashboard()">← Back</button>
+        </header>
+        <main class="container">
+            <div class="card">
+                <h3>👨‍⚕️ Connect with Veterinarian</h3>
+                <p style="margin-bottom: 16px; color: #6b7280; line-height: 1.6;">
+                    Contact a veterinarian if the condition worsens or health score drops below 70.
+                    Share complete health details for accurate diagnosis.
+                </p>
+                <div
+                    style="background: #f0f9ff; padding: 20px; border-radius: 10px; border-left: 4px solid #0284c7; margin-bottom: 20px;">
+                    <p style="font-size: 15px; margin-bottom: 12px; font-weight: 600; color: #0c4a6e;">
+                        📋 Health Summary to Share:
+                    </p>
+                    <div style="font-size: 14px; color: #374151; line-height: 1.8;">
+                        <p><strong>Cattle ID:</strong> A1B2C3</p>
+                        <p><strong>Farmer:</strong> Lakshmi (Village Collection Center)</p>
+                        <p><strong>Temperature:</strong> <span id="vetTempSummary">39.2°C (⚠️ Elevated - Normal:
+                                38-39°C)</span></p>
+                        <p><strong>Respiratory:</strong> Normal ✅</p>
+                        <p><strong>Health Score:</strong> <span id="vetScoreSummary">78/100</span></p>
+                        <p><strong>7-Day Trend:</strong> Stable, first elevation today</p>
+                        <p><strong>AI Assessment:</strong> Heat stress likely</p>
+                    </div>
+                </div>
+                <div style="display: grid; gap: 12px;">
+                    <button class="btn whatsapp" onclick="sendWhatsApp()" style="width: 100%;">
+                        📱 Send Details via WhatsApp
+                    </button>
+                    <button class="btn" onclick="callVet()" style="width: 100%;">
+                        📞 Call City Veterinarian
+                    </button>
+                    <button class="btn secondary" onclick="emailVet()" style="width: 100%;">
+                        📧 Email to Vet
+                    </button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>🏥 Available Veterinarians</h3>
+                <div style="margin-top: 12px;">
+                    <div style="padding: 16px; background: #f9fafb; border-radius: 8px; margin-bottom: 12px;">
+                        <p style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">Dr. Kumar Patel</p>
+                        <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">City Veterinary Hospital • 2.5
+                            km away</p>
+                        <p style="font-size: 13px; color: #3a5a40;">📞 +91-98765-43210 • Available: 24/7</p>
+                    </div>
+                    <div style="padding: 16px; background: #f9fafb; border-radius: 8px; margin-bottom: 12px;">
+                        <p style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">Dr. Anjali Sharma</p>
+                        <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Rural Livestock Care • 5 km away
+                        </p>
+                        <p style="font-size: 13px; color: #3a5a40;">📞 +91-98765-43211 • Available: 8 AM - 8 PM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="background: #fef3c7; border: 2px solid #fbbf24;">
+                <h3 style="color: #92400e;">⚠️ Emergency Protocol</h3>
+                <p style="color: #78350f; line-height: 1.6; font-size: 14px;">
+                    If cattle shows severe symptoms (temperature above 40.5°C, difficulty breathing,
+                    collapse, or seizures), call emergency veterinary services immediately at:
+                </p>
+                <p style="color: #92400e; font-size: 20px; font-weight: 700; margin-top: 12px;">
+                    📞 1800-XXX-XXXX (Toll Free)
+                </p>
+            </div>
+        </main>
     </div>
-  </section>
+    <!-- ========== SIMULATION CONTROLS (FOR DEMO) ========== -->
+    <!-- <div class="card"
+        style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #fff; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000; display: flex; align-items: center; gap: 15px;">
+        <span style="font-weight: 600; color: #333;">Simulate Temp:</span>
+        <input type="range" min="36.0" max="41.0" value="39.2" step="0.1" oninput="updateSimulation(this.value)"
+            style="width: 150px;">
+        <span id="simTempDisplay" style="font-weight: bold; color: #007bff;">39.2°C</span>
+    </div> -->
+<script>
 
-  <section id="decision-normal" class="info">
-    <p>AI explanation available</p>
-    <a href="suggestions.html" class="btn">View Explanation</a>
-  </section>
+// ================= NAVIGATION =================
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+}
+function showDashboard(){showPage('dashboardPage');}
+function showAICarePage(){showPage('aiCarePage');}
+function showVetPage(){showPage('vetPage');}
 
-  <section id="decision-critical" class="alert hidden">
-    <p>Critical Health Detected</p>
-    <a href="vet.html" class="btn whatsapp">Consult Veterinarian</a>
-  </section>
+// ================= AUTH =================
+let users = {'facilitator@carenode.in':'demo123'};
+let currentUser=null;
 
-  <a href="trends.html" class="btn secondary">View Health Trends</a>
+function signup(){
+    const email=authEmail.value;
+    const pass=authPassword.value;
+    if(!email||!pass)return alert("Enter email & password");
+    users[email]=pass;
+    alert("Account created");
+}
+function login(){
+    if(users[authEmail.value]===authPassword.value){
+        currentUser=authEmail.value;
+        showDashboard();
+        startSimulation(); // 👈 start auto simulation
+    } else alert("Invalid credentials");
+}
+function logout(){currentUser=null;showPage('authPage');}
 
-</main>
+// ================= CORE PROCESSOR =================
+let scanHistory=[];
 
-<script src="app.js"></script>
+function processESP32Data(data){
+
+    const now=new Date();
+    const timeString=now.toLocaleString();
+
+    document.querySelector('.card h3').innerText=
+        "Latest Scan - Cattle ID: "+data.cow_id;
+
+    const temp=data.temperature;
+    document.getElementById('dashTemp').innerText=temp.toFixed(1)+"°C";
+
+    document.getElementById("barNormal").style.width=
+        (data.probabilities.normal*100)+"%";
+    document.getElementById("barMonitor").style.width=
+        (data.probabilities.monitor*100)+"%";
+    document.getElementById("barCritical").style.width=
+        (data.probabilities.critical*100)+"%";
+
+    const score=Math.round(
+        data.probabilities.normal*100 +
+        data.probabilities.monitor*50
+    );
+
+    const scoreElement=document.getElementById('dashScore');
+    scoreElement.innerText=score;
+
+    if(score>=85){
+        scoreElement.className="score green";
+    }
+    else if(score>=60){
+        scoreElement.className="score orange";
+    }
+    else{
+        scoreElement.className="score red";
+    }
+
+    const aiStatus=document.getElementById('aiStatusText');
+    const aiRec=document.getElementById('aiRecText');
+
+    if(data.prediction==="NORMAL"){
+        aiStatus.innerHTML="<strong>Status:</strong> Cow is healthy.";
+        aiRec.innerHTML="<strong>Care:</strong><br>Routine feeding.";
+    }
+    else if(data.prediction==="MONITOR"){
+        aiStatus.innerHTML="<strong>Status:</strong> Needs monitoring.";
+        aiRec.innerHTML="<strong>Care:</strong><br>Check every 4 hours.";
+    }
+    else{
+        aiStatus.innerHTML="<strong>Status:</strong> CRITICAL!";
+        aiRec.innerHTML="<strong>Care:</strong><br>⚠️ Call vet immediately.";
+    }
+
+    document.getElementById('vetTempSummary').innerText=
+        temp.toFixed(1)+"°C";
+    document.getElementById('vetScoreSummary').innerText=
+        score+"/100";
+
+    scanHistory.unshift({
+        cow:data.cow_id,
+        time:timeString,
+        status:data.prediction
+    });
+
+    updateHistory();
+}
+
+// ================= HISTORY =================
+function updateHistory(){
+    const container=document.querySelector('.card:nth-of-type(4) div');
+    container.innerHTML="";
+    scanHistory.slice(0,5).forEach(item=>{
+        container.innerHTML+=
+        `<p style="padding:8px;border-bottom:1px solid #e5e7eb;">
+        <strong>${item.cow}</strong> - ${item.time} - ${item.status}
+        </p>`;
+    });
+}
+
+// ================= ESP32 SIMULATION =================
+let simInterval;
+let cowIndex = 0;
+
+function generateFakeData() {
+    const cows = [
+        {
+            cow_id:"COW_001",
+            temperature:36 + Math.random(),
+            probabilities:{normal:0.9,monitor:0.08,critical:0.02},
+            prediction:"NORMAL"
+        },
+        {
+            cow_id:"COW_002",
+            temperature:39 + Math.random(),
+            probabilities:{normal:0.2,monitor:0.6,critical:0.2},
+            prediction:"MONITOR"
+        },
+        {
+            cow_id:"COW_003",
+            temperature:40.5 + Math.random(),
+            probabilities:{normal:0.05,monitor:0.15,critical:0.8},
+            prediction:"CRITICAL"
+        }
+    ];
+
+    const data = cows[cowIndex];
+    cowIndex = (cowIndex + 1) % cows.length;
+
+    return data;
+}
+
+function startSimulation(){
+    if(simInterval) return;
+
+    simInterval = setInterval(()=>{
+        const data = generateFakeData();
+        processESP32Data(data);
+    }, 5000); // same as ESP32 delay
+}
+
+// ================= VOICE =================
+function playVoice(lang){
+    const msg={
+        tamil:"மாடு கண்காணிப்பு தேவை.",
+        hindi:"गाय को निगरानी की आवश्यकता है।",
+        english:"The cow requires monitoring."
+    };
+    const utter=new SpeechSynthesisUtterance(msg[lang]);
+    speechSynthesis.speak(utter);
+}
+function stopVoice(){speechSynthesis.cancel();}
+
+// ================= INIT =================
+window.onload=function(){
+    showPage('authPage');
+};
+
+// ================= OPTIONAL ESP32 (REAL) =================
+let port;
+let reader;
+
+async function connectESP32() {
+  try {
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 115200 });
+
+    const decoder = new TextDecoderStream();
+    port.readable.pipeTo(decoder.writable);
+    reader = decoder.readable.getReader();
+
+    readSerial();
+    alert("ESP32 Connected");
+
+  } catch (err) {
+    alert("Connection failed");
+  }
+}
+
+async function readSerial() {
+    let buffer = "";
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += value;
+
+        try {
+            const start = buffer.indexOf("{");
+            const end = buffer.lastIndexOf("}");
+
+            if (start !== -1 && end !== -1) {
+                const jsonString = buffer.substring(start, end + 1);
+                const data = JSON.parse(jsonString);
+                processESP32Data(data);
+                buffer = "";
+            }
+        } catch (e) {}
+    }
+}
+
+</script>
+
 </body>
 </html>
